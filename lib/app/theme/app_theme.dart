@@ -7,6 +7,11 @@ class Pallete {
     scaffoldBackgroundColor: AppColors.blackColor,
     cardColor: AppColors.greyColor,
     appBarTheme: const AppBarTheme(
+      titleTextStyle: TextStyle(
+        color: AppColors.whiteColor,
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+      ),
       backgroundColor: AppColors.drawerColor,
       iconTheme: IconThemeData(
         color: AppColors.whiteColor,
