@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:reddit_app/app/shared/utils.dart';
 import 'package:reddit_app/app/theme/app_colors.dart';
 import 'package:reddit_app/app/widgets/loader.dart';
-import 'package:reddit_app/features/auth/controllers/auth_controller.dart';
 import 'package:reddit_app/features/community/controller/community_controller.dart';
 
 class CreateCommunityScreen extends ConsumerStatefulWidget {
