@@ -22,8 +22,9 @@ class Pallete {
     ),
     primaryColor: AppColors.redColor,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: AppColors.redColor,
+      seedColor: AppColors.blueColor,
       background: AppColors.drawerColor,
+      brightness: Brightness.dark,
     ),
   );
 

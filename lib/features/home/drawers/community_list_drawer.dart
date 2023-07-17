@@ -14,6 +14,10 @@ class CommunityListDrawer extends ConsumerWidget {
     Routemaster.of(context).push(AppRoutes.createCommunity);
   }
 
+  void navigateToCommunityScreen(BuildContext context, String communityName) {
+    Routemaster.of(context).push('/r/$communityName');
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Drawer(
@@ -38,26 +42,24 @@ class CommunityListDrawer extends ConsumerWidget {
             ),
             Expanded(
               child: ref.watch(userCommunitiesProvider).when<Widget>(
-                    data: (communities) {
-                      return ListView.builder(
-                        physics: const BouncingScrollPhysics(),
-                        itemCount: communities.length,
-                        itemBuilder: (context, index) {
-                          final community = communities[index];
-                          return ListTile(
-                            title: Text(
-                              'r/${community.name}',
-                            ),
-                            leading: CircleAvatar(
-                              radius: 16,
-                              backgroundImage: NetworkImage(community.avatar),
-                            ),
-                            onTap: () {},
-                          );
-                        },
-                      );
-                    },
-                    error: (_, __) => const ErrorTextWidget(error: 'Some error occurred'),
+                    data: (communities) => ListView.builder(
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: communities.length,
+                      itemBuilder: (context, index) {
+                        final community = communities[index];
+                        return ListTile(
+                          title: Text(
+                            'r/${community.name}',
+                          ),
+                          leading: CircleAvatar(
+                            radius: 16,
+                            backgroundImage: NetworkImage(community.avatar),
+                          ),
+                          onTap: () => navigateToCommunityScreen(context, community.name),
+                        );
+                      },
+                    ),
+                    error: (error, __) => ErrorTextWidget(error: error.toString()),
                     loading: () => const Loader(),
                   ),
             ),

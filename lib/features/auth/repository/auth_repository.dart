@@ -6,7 +6,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:reddit_app/app/constants/firebase_constants.dart';
 import 'package:reddit_app/app/models/user_model.dart';
 import 'package:reddit_app/app/shared/failure.dart';
-import 'package:reddit_app/app/shared/shared_providers.dart';
+import 'package:reddit_app/app/shared/providers/shared_providers.dart';
 import 'package:reddit_app/app/shared/type_defs.dart';
 
 final authRepositoryProvider = Provider<AuthRepository>(
@@ -62,5 +62,10 @@ class AuthRepository {
 
   Stream<UserModel> getUserData(String uid) {
     return _users.doc(uid).snapshots().map((event) => UserModel.fromMap(event.data() as Map<String, dynamic>));
+  }
+
+  Future<void> logout() async {
+    await _googleSignIn.signOut();
+    await _auth.signOut();
   }
 }

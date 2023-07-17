@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:reddit_app/app/constants/app_constants.dart';
@@ -18,12 +17,16 @@ class App extends ConsumerStatefulWidget {
 }
 
 class _AppState extends ConsumerState<App> {
+  UserModel? previousUserModel;
   UserModel? userModel;
 
-  void getData(WidgetRef ref, User data) async {
-    userModel = await ref.watch(authControllerProvider.notifier).getUserData(data.uid).first;
+  Future<void> getData(WidgetRef ref, String uid) async {
+    userModel = await ref.read(authControllerProvider.notifier).getUserData(uid).first;
     ref.read(userProvider.notifier).update((_) => userModel);
-    setState(() {});
+    if (previousUserModel != userModel) {
+      previousUserModel = userModel;
+      setState(() {});
+    }
   }
 
   @override
@@ -37,7 +40,7 @@ class _AppState extends ConsumerState<App> {
               routerDelegate: RoutemasterDelegate(
                 routesBuilder: (_) {
                   if (data != null) {
-                    getData(ref, data);
+                    getData(ref, data.uid);
                     if (userModel != null) {
                       return loggedInRoute;
                     }

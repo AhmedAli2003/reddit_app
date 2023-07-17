@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart';
+
 import 'package:reddit_app/app/constants/app_constants.dart';
 
 @immutable
 class Community {
   final String id;
   final String name;
+  final String creatorUid;
   final String banner;
   final String avatar;
   final List<String> members;
@@ -13,6 +15,7 @@ class Community {
   const Community({
     required this.id,
     required this.name,
+    required this.creatorUid,
     required this.banner,
     required this.avatar,
     required this.members,
@@ -26,6 +29,7 @@ class Community {
     return Community(
       id: name,
       name: name,
+      creatorUid: creatorUid,
       avatar: AppConstants.avatarDefault,
       banner: AppConstants.bannerDefault,
       members: [creatorUid],
@@ -36,6 +40,7 @@ class Community {
   Community copyWith({
     String? id,
     String? name,
+    String? creatorUid,
     String? banner,
     String? avatar,
     List<String>? members,
@@ -44,6 +49,7 @@ class Community {
     return Community(
       id: id ?? this.id,
       name: name ?? this.name,
+      creatorUid: creatorUid ?? this.creatorUid,
       banner: banner ?? this.banner,
       avatar: avatar ?? this.avatar,
       members: members ?? this.members,
@@ -55,6 +61,7 @@ class Community {
     return <String, dynamic>{
       'id': id,
       'name': name,
+      'creatorUid': creatorUid,
       'banner': banner,
       'avatar': avatar,
       'members': members,
@@ -66,6 +73,7 @@ class Community {
     return Community(
       id: map['id'] as String,
       name: map['name'] as String,
+      creatorUid: map['creatorUid'] as String,
       banner: map['banner'] as String,
       avatar: map['avatar'] as String,
       members: List<String>.from((map['members'])),
@@ -74,7 +82,7 @@ class Community {
   }
 
   @override
-  String toString() => 'Community(id: $id, name: $name, banner: $banner, avatar: $avatar, members: $members, mods: $mods)';
+  String toString() => 'Community(id: $id, name: $name, creatorUid: $creatorUid, banner: $banner, avatar: $avatar, members: $members, mods: $mods)';
 
   @override
   bool operator ==(covariant Community other) {

@@ -48,4 +48,10 @@ class AuthController extends StateNotifier<bool> {
   Stream<UserModel> getUserData(String uid) {
     return _authRepository.getUserData(uid);
   }
+
+  Future<void> logout() async {
+    state = true;
+    await _authRepository.logout();
+    state = false;
+  }
 }
