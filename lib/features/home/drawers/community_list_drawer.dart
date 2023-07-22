@@ -15,7 +15,7 @@ class CommunityListDrawer extends ConsumerWidget {
   }
 
   void navigateToCommunityScreen(BuildContext context, String communityName) {
-    Routemaster.of(context).push('/r/$communityName');
+    Routemaster.of(context).push('${AppRoutes.community}/$communityName');
   }
 
   @override

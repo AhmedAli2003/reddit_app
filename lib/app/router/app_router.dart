@@ -6,7 +6,10 @@ import 'package:reddit_app/features/community/screens/community_screen.dart';
 import 'package:reddit_app/features/community/screens/create_community_screen.dart';
 import 'package:reddit_app/features/community/screens/edit_community_screen.dart';
 import 'package:reddit_app/features/community/screens/mod_tools_screen.dart';
+import 'package:reddit_app/features/posts/screens/add_post_type_screen.dart';
+import 'package:reddit_app/features/profile/screens/edit_profile_screen.dart';
 import 'package:reddit_app/features/home/screens/home_screen.dart';
+import 'package:reddit_app/features/profile/screens/profile_screen.dart';
 import 'package:routemaster/routemaster.dart';
 
 final loggedOutRoute = RouteMap(
@@ -19,7 +22,7 @@ final loggedInRoute = RouteMap(
   routes: {
     '/': (_) => const MaterialPage(child: HomeScreen()),
     AppRoutes.createCommunity: (_) => const MaterialPage(child: CreateCommunityScreen()),
-    '/r/:name': (route) => MaterialPage(
+    '${AppRoutes.community}/:name': (route) => MaterialPage(
           child: CommunityScreen(
             name: route.pathParameters['name']!,
           ),
@@ -36,8 +39,23 @@ final loggedInRoute = RouteMap(
         ),
     '${AppRoutes.addMods}/:name': (route) => MaterialPage(
           child: AddModsScreen(
-              name: route.pathParameters['name']!,
-              ),
+            name: route.pathParameters['name']!,
+          ),
+        ),
+    '${AppRoutes.profile}/:uid': (route) => MaterialPage(
+          child: ProfileScreen(
+            uid: route.pathParameters['uid']!,
+          ),
+        ),
+    '${AppRoutes.editProfile}/:uid': (route) => MaterialPage(
+          child: EditProfileScreen(
+            uid: route.pathParameters['uid']!,
+          ),
+        ),
+    '${AppRoutes.addPost}/:type': (route) => MaterialPage(
+          child: AddPostTypeScreen(
+            type: route.pathParameters['type']!,
+          ),
         ),
   },
 );

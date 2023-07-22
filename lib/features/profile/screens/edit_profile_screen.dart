@@ -4,28 +4,40 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:reddit_app/app/constants/app_constants.dart';
-import 'package:reddit_app/app/models/community_model.dart';
+import 'package:reddit_app/app/models/user_model.dart';
 import 'package:reddit_app/app/shared/utils.dart';
 import 'package:reddit_app/app/theme/app_colors.dart';
 import 'package:reddit_app/app/theme/app_theme.dart';
 import 'package:reddit_app/app/widgets/error_text_widget.dart';
 import 'package:reddit_app/app/widgets/loader.dart';
-import 'package:reddit_app/features/community/controller/community_controller.dart';
+import 'package:reddit_app/features/auth/controllers/auth_controller.dart';
+import 'package:reddit_app/features/profile/controller/user_profile_controller.dart';
 
-class EditCommunityScreen extends ConsumerStatefulWidget {
-  final String name;
-  const EditCommunityScreen({
-    super.key,
-    required this.name,
-  });
+class EditProfileScreen extends ConsumerStatefulWidget {
+  final String uid;
+  const EditProfileScreen({super.key, required this.uid});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _EditCommunityScreenState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _EditProfileScreenState();
 }
 
-class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
+class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   File? bannerFile;
   File? profileFile;
+
+  late final TextEditingController _nameController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: ref.read(userProvider)!.name);
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
 
   void selectBannerImage() async {
     final picked = await pickImage();
@@ -41,21 +53,22 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
     }
   }
 
-  void save(Community community) {
-    ref.read(communityControllerProvider.notifier).editCommunity(
+  void save(UserModel user) {
+    ref.read(userProfileControllerProvider.notifier).editProfile(
           context: context,
           profileFile: profileFile,
           bannerFile: bannerFile,
-          community: community,
+          newName: _nameController.text.trim(),
+          user: user,
         );
   }
 
-  Widget getBannerImage(Community community) {
+  Widget getBannerImage(UserModel user) {
     if (bannerFile != null) {
       return Image.file(bannerFile!, fit: BoxFit.cover);
     }
-    if (community.banner.isNotEmpty && community.banner != AppConstants.bannerDefault) {
-      return Image.network(community.banner, fit: BoxFit.cover);
+    if (user.banner.isNotEmpty && user.banner != AppConstants.bannerDefault) {
+      return Image.network(user.banner, fit: BoxFit.cover);
     }
     return const Center(
       child: Icon(Icons.camera_alt_outlined, size: 44),
@@ -64,9 +77,9 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = ref.watch(communityControllerProvider);
-    return ref.watch(getCommunityByNameProvider(widget.name)).when<Widget>(
-          data: (community) => Scaffold(
+    final isLoading = ref.watch(userProfileControllerProvider);
+    return ref.watch(getUserDataProvider(widget.uid)).when<Widget>(
+          data: (user) => Scaffold(
             backgroundColor: AppTheme.darkModeAppTheme.colorScheme.background,
             appBar: AppBar(
               centerTitle: false,
@@ -74,7 +87,7 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
               actions: [
                 if (!isLoading)
                   TextButton(
-                    onPressed: () => save(community),
+                    onPressed: () => save(user),
                     child: const Text('Save'),
                   ),
               ],
@@ -103,7 +116,7 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
                                     decoration: const BoxDecoration(
                                       borderRadius: BorderRadius.all(Radius.circular(10)),
                                     ),
-                                    child: getBannerImage(community),
+                                    child: getBannerImage(user),
                                   ),
                                 ),
                               ),
@@ -113,12 +126,26 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
                                 child: GestureDetector(
                                   onTap: selectProfileImage,
                                   child: CircleAvatar(
-                                    backgroundImage: profileFile != null ? FileImage(profileFile!) as ImageProvider : NetworkImage(community.avatar),
+                                    backgroundImage:
+                                        profileFile != null ? FileImage(profileFile!) as ImageProvider : NetworkImage(user.profilePicture),
                                     radius: 32,
                                   ),
                                 ),
                               ),
                             ],
+                          ),
+                        ),
+                        TextField(
+                          controller: _nameController,
+                          decoration: const InputDecoration(
+                            filled: true,
+                            hintText: 'Name',
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: AppColors.blueColor),
+                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.all(16),
                           ),
                         ),
                       ],

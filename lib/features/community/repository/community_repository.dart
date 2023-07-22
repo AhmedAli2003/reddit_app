@@ -114,4 +114,18 @@ class CommunityRepository {
       return Left(Failure(e.toString()));
     }
   }
+
+  FutureVoid addMods({
+    required String communityName,
+    required List<String> uids,
+  }) async {
+    try {
+      await _communities.doc(communityName).update({'mods': uids});
+      return const Right(unit);
+    } on FirebaseException catch (e) {
+      throw e.message!;
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
 }

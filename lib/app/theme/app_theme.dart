@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:reddit_app/app/theme/app_colors.dart';
 
-class Pallete {
+class AppTheme {
   static var darkModeAppTheme = ThemeData.dark().copyWith(
     useMaterial3: true,
     scaffoldBackgroundColor: AppColors.blackColor,

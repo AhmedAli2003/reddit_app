@@ -142,4 +142,18 @@ class CommunityController extends StateNotifier<bool> {
     );
     state = false;
   }
+
+  Future<void> addMods({
+    required BuildContext context,
+    required String communityName,
+    required List<String> uids,
+  }) async {
+    state = true;
+    final either = await _communityRepository.addMods(communityName: communityName, uids: uids);
+    state = false;
+    either.fold(
+      (failure) => showSnackBar(context, failure.message),
+      (_) => Routemaster.of(context).pop(),
+    );
+  }
 }

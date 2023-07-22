@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:reddit_app/app/constants/app_constants.dart';
 import 'package:reddit_app/app/models/user_model.dart';
 import 'package:reddit_app/app/router/app_router.dart';
-import 'package:reddit_app/app/theme/app_theme.dart';
+import 'package:reddit_app/app/shared/utils.dart';
+import 'package:reddit_app/app/theme/theme_notifier.dart';
 import 'package:reddit_app/app/widgets/error_text_widget.dart';
 import 'package:reddit_app/app/widgets/loader.dart';
 import 'package:reddit_app/features/auth/controllers/auth_controller.dart';
@@ -31,12 +32,13 @@ class _AppState extends ConsumerState<App> {
 
   @override
   Widget build(BuildContext context) {
+    changeSystemOverlayUI(ref);
     return ref.watch(authStateChangeProvider).when(
           data: (data) {
             return MaterialApp.router(
               debugShowCheckedModeBanner: false,
               title: AppConstants.appTitle,
-              theme: Pallete.darkModeAppTheme,
+              theme: ref.watch(themeProvider),
               routerDelegate: RoutemasterDelegate(
                 routesBuilder: (_) {
                   if (data != null) {
