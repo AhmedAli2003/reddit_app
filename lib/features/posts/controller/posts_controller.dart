@@ -19,6 +19,10 @@ final postsControllerProvider = StateNotifierProvider<PostsController, bool>(
   ),
 );
 
+final userPostsProvider = StreamProvider.family<List<Post>, List<Community>>(
+  (ref, communities) => ref.watch(postsControllerProvider.notifier).fetchUserPosts(communities),
+);
+
 class PostsController extends StateNotifier<bool> {
   final Ref _ref;
   final PostsRepository _postsRepository;
@@ -118,7 +122,7 @@ class PostsController extends StateNotifier<bool> {
     );
     imageEither.fold(
       (imageFailure) => showSnackBar(context, imageFailure.message),
-      (_) async {
+      (imageUrl) async {
         final post = Post(
           id: postId,
           title: title,
@@ -132,6 +136,7 @@ class PostsController extends StateNotifier<bool> {
           type: 'image',
           creationDate: DateTime.now(),
           awards: const [],
+          link: imageUrl,
         );
         final either = await _postsRepository.addPost(post: post);
         state = false;
@@ -143,6 +148,26 @@ class PostsController extends StateNotifier<bool> {
           },
         );
       },
+    );
+  }
+
+  Stream<List<Post>> fetchUserPosts(List<Community> communities) {
+    if (communities.isNotEmpty) {
+      return _postsRepository.fetchUserPosts(communities);
+    }
+    return Stream.value([]);
+  }
+
+  Future<void> deletePost({
+    required BuildContext context,
+    required String postId,
+  }) async {
+    state = true;
+    final either = await _postsRepository.deletePost(postId);
+    state = false;
+    either.fold(
+      (failure) => showSnackBar(context, failure.message),
+      (_) => null,
     );
   }
 }

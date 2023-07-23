@@ -17,7 +17,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  static const _tabWidgets = [
+  final _tabWidgets = const [
     FeedScreen(),
     AddPostScreen(),
   ];
