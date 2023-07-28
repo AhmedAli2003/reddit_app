@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:reddit_app/app/models/community_model.dart';
+import 'package:reddit_app/app/models/post_model.dart';
 import 'package:reddit_app/app/shared/providers/storage_repository_provider.dart';
 import 'package:reddit_app/app/shared/type_defs.dart';
 import 'package:reddit_app/app/shared/utils.dart';
@@ -29,6 +30,10 @@ final communityControllerProvider = StateNotifierProvider<CommunityController, b
 
 final searchCommunityProvider = StreamProvider.family<List<Community>, String>(
   (ref, query) => ref.watch(communityControllerProvider.notifier).searchCommunity(query),
+);
+
+final getCommunityPostsProvider = StreamProvider.family<List<Post>, String>(
+  (ref, communityName) => ref.read(communityControllerProvider.notifier).getCommunityPosts(communityName),
 );
 
 class CommunityController extends StateNotifier<bool> {
@@ -155,5 +160,14 @@ class CommunityController extends StateNotifier<bool> {
       (failure) => showSnackBar(context, failure.message),
       (_) => Routemaster.of(context).pop(),
     );
+  }
+
+  Future<bool> isMod(String communityId) async {
+    final uid = _ref.read(userProvider)!.uid;
+    return await _communityRepository.isMod(communityId, uid);
+  }
+
+  Stream<List<Post>> getCommunityPosts(String communityName) {
+    return _communityRepository.getCommunityPosts(communityName);
   }
 }

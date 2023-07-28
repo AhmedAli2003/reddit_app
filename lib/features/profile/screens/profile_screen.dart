@@ -4,6 +4,8 @@ import 'package:reddit_app/app/router/app_routes.dart';
 import 'package:reddit_app/app/widgets/error_text_widget.dart';
 import 'package:reddit_app/app/widgets/loader.dart';
 import 'package:reddit_app/features/auth/controllers/auth_controller.dart';
+import 'package:reddit_app/features/posts/widgets/post_card.dart';
+import 'package:reddit_app/features/profile/controller/user_profile_controller.dart';
 import 'package:routemaster/routemaster.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -78,7 +80,14 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                 ),
               ],
-              body: Container(),
+              body: ref.watch(getUserPostsProvider(uid)).when(
+                    data: (posts) => ListView.builder(
+                      itemCount: posts.length,
+                      itemBuilder: (context, index) => PostCard(post: posts[index]),
+                    ),
+                    error: (error, _) => ErrorTextWidget(error: error.toString()),
+                    loading: () => const Loader(),
+                  ),
             ),
             error: (error, __) => ErrorTextWidget(error: error.toString()),
             loading: () => const Loader(),

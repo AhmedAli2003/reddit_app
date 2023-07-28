@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:reddit_app/app/models/post_model.dart';
 import 'package:reddit_app/app/models/user_model.dart';
 import 'package:reddit_app/app/shared/providers/storage_repository_provider.dart';
 import 'package:reddit_app/features/auth/controllers/auth_controller.dart';
@@ -15,6 +16,10 @@ final userProfileControllerProvider = StateNotifierProvider<UserProfileControlle
     userProfileRepository: ref.watch(userProfileRepositoryProvider),
     storageRepository: ref.watch(firebaseStorageRepositoryProvider),
   ),
+);
+
+final getUserPostsProvider = StreamProvider.family<List<Post>, String>(
+  (ref, userId) => ref.read(userProfileControllerProvider.notifier).getUserPosts(userId),
 );
 
 class UserProfileController extends StateNotifier<bool> {
@@ -74,5 +79,9 @@ class UserProfileController extends StateNotifier<bool> {
         Routemaster.of(context).pop();
       },
     );
+  }
+
+  Stream<List<Post>> getUserPosts(String userId) {
+    return _userProfileRepository.getUserPosts(userId);
   }
 }

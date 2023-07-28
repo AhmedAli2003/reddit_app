@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:reddit_app/app/constants/app_constants.dart';
 import 'package:reddit_app/app/models/post_model.dart';
+import 'package:reddit_app/app/router/app_routes.dart';
 import 'package:reddit_app/app/theme/app_colors.dart';
 import 'package:reddit_app/app/theme/theme_notifier.dart';
 import 'package:reddit_app/features/auth/controllers/auth_controller.dart';
 import 'package:reddit_app/features/posts/controller/posts_controller.dart';
+import 'package:reddit_app/features/posts/widgets/moderator_icon.dart';
+import 'package:routemaster/routemaster.dart';
 
 class PostCard extends ConsumerWidget {
   final Post post;
@@ -17,6 +20,26 @@ class PostCard extends ConsumerWidget {
 
   void deletePost(BuildContext context, WidgetRef ref) {
     ref.read(postsControllerProvider.notifier).deletePost(context: context, postId: post.id);
+  }
+
+  void upvote(BuildContext context, WidgetRef ref) {
+    ref.read(postsControllerProvider.notifier).upvote(context: context, post: post);
+  }
+
+  void downvote(BuildContext context, WidgetRef ref) {
+    ref.read(postsControllerProvider.notifier).downvote(context: context, post: post);
+  }
+
+  void navigateToUserProfile(BuildContext context) {
+    Routemaster.of(context).push('${AppRoutes.profile}/${post.userId}');
+  }
+
+  void navigateToCommunity(BuildContext context) {
+    Routemaster.of(context).push('${AppRoutes.community}/${post.communityName}');
+  }
+
+  void navigateToComments(BuildContext context) {
+    Routemaster.of(context).push('${AppRoutes.post}/${post.id}');
   }
 
   @override
@@ -47,23 +70,33 @@ class PostCard extends ConsumerWidget {
                         children: [
                           Row(
                             children: [
-                              CircleAvatar(
-                                radius: 16,
-                                backgroundImage: NetworkImage(post.communityProfilePicture),
+                              GestureDetector(
+                                onTap: () => navigateToCommunity(context),
+                                child: CircleAvatar(
+                                  radius: 16,
+                                  backgroundImage: NetworkImage(post.communityProfilePicture),
+                                ),
                               ),
+                              const SizedBox(width: 8),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    'r/${post.communityName}',
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
+                                  GestureDetector(
+                                    onTap: () => navigateToCommunity(context),
+                                    child: Text(
+                                      'r/${post.communityName}',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
-                                  Text(
-                                    'u/${post.username}',
-                                    style: const TextStyle(fontSize: 12),
+                                  GestureDetector(
+                                    onTap: () => navigateToUserProfile(context),
+                                    child: Text(
+                                      'u/${post.username}',
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -111,27 +144,29 @@ class PostCard extends ConsumerWidget {
                     Row(
                       children: [
                         IconButton(
-                          onPressed: () {},
+                          onPressed: () => upvote(context, ref),
                           icon: Icon(
                             AppConstants.up,
                             size: 28,
-                            color: post.upVotes.contains(user.uid) ? AppColors.redColor : null,
+                            color: post.upVotes.contains(user.uid) ? AppColors.blueColor : null,
                           ),
                         ),
                         Text('${post.upVotes.length - post.downVotes.length}'),
                         IconButton(
-                          onPressed: () {},
+                          onPressed: () => downvote(context, ref),
                           icon: Icon(
                             AppConstants.down,
                             size: 28,
-                            color: post.downVotes.contains(user.uid) ? AppColors.blueColor : null,
+                            color: post.downVotes.contains(user.uid) ? AppColors.redColor : null,
                           ),
                         ),
                         IconButton(
-                          onPressed: () {},
+                          onPressed: () => navigateToComments(context),
                           icon: const Icon(Icons.comment_rounded),
                         ),
                         Text('${post.commentCount == 0 ? 'Comment' : post.commentCount}'),
+                        const Spacer(),
+                        ModeratorIcon(postId: post.id, communityId: post.communityName),
                       ],
                     ),
                   ],

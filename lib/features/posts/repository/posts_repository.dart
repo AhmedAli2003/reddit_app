@@ -68,4 +68,58 @@ class PostsRepository {
       return Left(Failure(e.toString()));
     }
   }
+
+  FutureVoid upvote(Post post, String userId) async {
+    try {
+      if (post.downVotes.contains(userId)) {
+        _posts.doc(post.id).update({
+          'downVotes': FieldValue.arrayRemove([userId]),
+        });
+      }
+
+      if (post.upVotes.contains(userId)) {
+        _posts.doc(post.id).update({
+          'upVotes': FieldValue.arrayRemove([userId])
+        });
+      } else {
+        _posts.doc(post.id).update({
+          'upVotes': FieldValue.arrayUnion([userId])
+        });
+      }
+      return const Right(unit);
+    } on FirebaseException catch (e) {
+      throw e.message!;
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  FutureVoid downvote(Post post, String userId) async {
+    try {
+      if (post.upVotes.contains(userId)) {
+        _posts.doc(post.id).update({
+          'upVotes': FieldValue.arrayRemove([userId]),
+        });
+      }
+
+      if (post.downVotes.contains(userId)) {
+        _posts.doc(post.id).update({
+          'downVotes': FieldValue.arrayRemove([userId])
+        });
+      } else {
+        _posts.doc(post.id).update({
+          'downVotes': FieldValue.arrayUnion([userId])
+        });
+      }
+      return const Right(unit);
+    } on FirebaseException catch (e) {
+      throw e.message!;
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  Stream<Post> getPostById(String postId) {
+    return _posts.doc(postId).snapshots().map((event) => Post.fromMap(event.data() as Map<String, dynamic>));
+  }
 }

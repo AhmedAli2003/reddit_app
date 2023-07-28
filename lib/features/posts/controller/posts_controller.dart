@@ -20,7 +20,11 @@ final postsControllerProvider = StateNotifierProvider<PostsController, bool>(
 );
 
 final userPostsProvider = StreamProvider.family<List<Post>, List<Community>>(
-  (ref, communities) => ref.watch(postsControllerProvider.notifier).fetchUserPosts(communities),
+  (ref, communities) => ref.read(postsControllerProvider.notifier).fetchUserPosts(communities),
+);
+
+final getPostByIdProvider = StreamProvider.family<Post, String>(
+  (ref, postId) => ref.read(postsControllerProvider.notifier).getPostById(postId),
 );
 
 class PostsController extends StateNotifier<bool> {
@@ -169,5 +173,33 @@ class PostsController extends StateNotifier<bool> {
       (failure) => showSnackBar(context, failure.message),
       (_) => null,
     );
+  }
+
+  Future<void> upvote({
+    required BuildContext context,
+    required Post post,
+  }) async {
+    final uid = _ref.read(userProvider)!.uid;
+    final either = await _postsRepository.upvote(post, uid);
+    either.fold(
+      (failure) => showSnackBar(context, failure.message),
+      (_) => null,
+    );
+  }
+
+  Future<void> downvote({
+    required BuildContext context,
+    required Post post,
+  }) async {
+    final uid = _ref.read(userProvider)!.uid;
+    final either = await _postsRepository.downvote(post, uid);
+    either.fold(
+      (failure) => showSnackBar(context, failure.message),
+      (_) => null,
+    );
+  }
+
+  Stream<Post> getPostById(String postId) {
+    return _postsRepository.getPostById(postId);
   }
 }

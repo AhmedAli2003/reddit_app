@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:reddit_app/app/constants/firebase_constants.dart';
 import 'package:reddit_app/app/models/community_model.dart';
+import 'package:reddit_app/app/models/post_model.dart';
 import 'package:reddit_app/app/shared/failure.dart';
 import 'package:reddit_app/app/shared/providers/shared_providers.dart';
 import 'package:reddit_app/app/shared/type_defs.dart';
@@ -20,6 +21,7 @@ class CommunityRepository {
   }) : _firestore = firestore;
 
   CollectionReference get _communities => _firestore.collection(FirebaseConstants.communitiesCollection);
+  CollectionReference get _posts => _firestore.collection(FirebaseConstants.postsCollection);
 
   FutureVoid createCommunity(Community community) async {
     try {
@@ -127,5 +129,29 @@ class CommunityRepository {
     } catch (e) {
       return Left(Failure(e.toString()));
     }
+  }
+
+  Future<bool> isMod(String communityId, String userId) async {
+    try {
+      final communityDoc = await _communities.doc(communityId).get();
+      final community = Community.fromMap(communityDoc.data() as Map<String, dynamic>);
+      return community.mods.contains(userId);
+    } catch (e) {
+      return false;
+    }
+  }
+
+    Stream<List<Post>> getCommunityPosts(String communityName) {
+    return _posts
+        .where('communityName', isEqualTo: communityName)
+        .orderBy('creationDate', descending: true)
+        .snapshots()
+        .map((event) => event.docs
+            .map(
+              (doc) => Post.fromMap(
+                doc.data() as Map<String, dynamic>,
+              ),
+            )
+            .toList());
   }
 }

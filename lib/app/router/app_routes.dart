@@ -9,4 +9,5 @@ class AppRoutes {
   static const String profile = '/u';
   static const String editProfile = '/edit-profile';
   static const String addPost = '/add-post';
+  static const String post = '/post';
 }
