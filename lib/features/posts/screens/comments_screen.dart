@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:reddit_app/app/models/post_model.dart';
 import 'package:reddit_app/app/widgets/error_text_widget.dart';
 import 'package:reddit_app/app/widgets/loader.dart';
 import 'package:reddit_app/features/posts/controller/posts_controller.dart';
