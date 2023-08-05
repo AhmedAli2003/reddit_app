@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:reddit_app/app/constants/firebase_constants.dart';
+import 'package:reddit_app/app/models/comment.dart';
 import 'package:reddit_app/app/models/community_model.dart';
 import 'package:reddit_app/app/models/post_model.dart';
 import 'package:reddit_app/app/shared/failure.dart';
@@ -22,6 +23,7 @@ class PostsRepository {
   }) : _firestore = firestore;
 
   CollectionReference get _posts => _firestore.collection(FirebaseConstants.postsCollection);
+  CollectionReference get _comments => _firestore.collection(FirebaseConstants.commentsCollection);
 
   FutureVoid addPost({required Post post}) async {
     try {
@@ -121,5 +123,16 @@ class PostsRepository {
 
   Stream<Post> getPostById(String postId) {
     return _posts.doc(postId).snapshots().map((event) => Post.fromMap(event.data() as Map<String, dynamic>));
+  }
+
+  FutureVoid addComment(Comment comment) async {
+    try {
+      await _comments.doc(comment.id).set(comment.toMap());
+      return const Right(unit);
+    } on FirebaseException catch (e) {
+      throw e.message!;
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
   }
 }

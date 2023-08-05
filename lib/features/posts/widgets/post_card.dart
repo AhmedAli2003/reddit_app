@@ -175,6 +175,7 @@ class PostCard extends ConsumerWidget {
             ],
           ),
         ),
+        const SizedBox(height: 12),
       ],
     );
   }

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:reddit_app/app/models/comment.dart';
 import 'package:reddit_app/app/models/community_model.dart';
 import 'package:reddit_app/app/models/post_model.dart';
 import 'package:reddit_app/app/shared/providers/storage_repository_provider.dart';
@@ -201,5 +202,19 @@ class PostsController extends StateNotifier<bool> {
 
   Stream<Post> getPostById(String postId) {
     return _postsRepository.getPostById(postId);
+  }
+
+  Future<void> addComment({
+    required BuildContext context,
+    required String text,
+    required String postId,
+  }) async {
+    final userId = _ref.read(userProvider)!.uid;
+    final comment = Comment.fromText(text: text, userId: userId, postId: postId);
+    final either = await _postsRepository.addComment(comment);
+    either.fold(
+      (failure) => showSnackBar(context, failure.message),
+      (_) => null,
+    );
   }
 }
