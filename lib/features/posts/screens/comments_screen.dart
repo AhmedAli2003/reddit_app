@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:reddit_app/app/widgets/error_text_widget.dart';
 import 'package:reddit_app/app/widgets/loader.dart';
 import 'package:reddit_app/features/posts/controller/posts_controller.dart';
+import 'package:reddit_app/features/posts/widgets/comment_card.dart';
 import 'package:reddit_app/features/posts/widgets/post_card.dart';
 
 class CommentsScreen extends ConsumerStatefulWidget {
@@ -64,6 +65,15 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
                         ),
                       ),
                     ),
+                    ref.watch(getPostCommentsProvider(post.id)).when(
+                          data: (comments) => ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: comments.length,
+                            itemBuilder: (context, index) => CommentCard(comment: comments[index]),
+                          ),
+                          error: (error, _) => ErrorTextWidget(error: error.toString()),
+                          loading: () => const Loader(),
+                        ),
                   ],
                 ),
               ),

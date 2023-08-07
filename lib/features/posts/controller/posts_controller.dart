@@ -28,6 +28,10 @@ final getPostByIdProvider = StreamProvider.family<Post, String>(
   (ref, postId) => ref.read(postsControllerProvider.notifier).getPostById(postId),
 );
 
+final getPostCommentsProvider = StreamProvider.family<List<Comment>, String>(
+  (ref, postId) => ref.watch(postsControllerProvider.notifier).fetchPostComments(postId),
+);
+
 class PostsController extends StateNotifier<bool> {
   final Ref _ref;
   final PostsRepository _postsRepository;
@@ -216,5 +220,9 @@ class PostsController extends StateNotifier<bool> {
       (failure) => showSnackBar(context, failure.message),
       (_) => null,
     );
+  }
+
+  Stream<List<Comment>> fetchPostComments(String postId) {
+    return _postsRepository.fetchPostComments(postId);
   }
 }

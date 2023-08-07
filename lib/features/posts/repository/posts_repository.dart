@@ -135,4 +135,21 @@ class PostsRepository {
       return Left(Failure(e.toString()));
     }
   }
+
+  Stream<List<Comment>> fetchPostComments(String postId) {
+    return _comments
+        .where('postId', isEqualTo: postId)
+        .orderBy(
+          'creationTime',
+          descending: true,
+        )
+        .snapshots()
+        .map(
+          (event) => event.docs
+              .map(
+                (e) => Comment.fromMap(e.data() as Map<String, dynamic>),
+              )
+              .toList(),
+        );
+  }
 }
