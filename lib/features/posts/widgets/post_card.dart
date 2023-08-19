@@ -1,6 +1,7 @@
 import 'package:any_link_preview/any_link_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:reddit_app/app/constants/app_assets.dart';
 import 'package:reddit_app/app/constants/app_constants.dart';
 import 'package:reddit_app/app/models/post_model.dart';
 import 'package:reddit_app/app/router/app_routes.dart';
@@ -28,6 +29,14 @@ class PostCard extends ConsumerWidget {
 
   void downvote(BuildContext context, WidgetRef ref) {
     ref.read(postsControllerProvider.notifier).downvote(context: context, post: post);
+  }
+
+  void awardPost(BuildContext context, WidgetRef ref, String award) async {
+    ref.read(postsControllerProvider.notifier).awardPost(
+          context: context,
+          post: post,
+          award: award,
+        );
   }
 
   void navigateToUserProfile(BuildContext context) {
@@ -109,6 +118,17 @@ class PostCard extends ConsumerWidget {
                             ],
                           ),
                           const SizedBox(height: 8),
+                          if (post.awards.isNotEmpty) ...[
+                            SizedBox(
+                              height: 24,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: post.awards.length,
+                                itemBuilder: (_, index) => Image.asset(AppAssets.awards[post.awards[index]]!),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                          ],
                           Text(
                             post.title,
                             style: const TextStyle(
@@ -167,6 +187,33 @@ class PostCard extends ConsumerWidget {
                         Text('${post.commentCount == 0 ? 'Comment' : post.commentCount}'),
                         const Spacer(),
                         ModeratorIcon(postId: post.id, communityId: post.communityName),
+                        IconButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => Dialog(
+                                child: GridView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: user.awards.length,
+                                  padding: const EdgeInsets.all(20),
+                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 4,
+                                    crossAxisSpacing: 12,
+                                    mainAxisSpacing: 12,
+                                  ),
+                                  itemBuilder: (context, index) {
+                                    final award = user.awards[index];
+                                    return GestureDetector(
+                                      onTap: () => awardPost(context, ref, award),
+                                      child: Image.asset(AppAssets.awards[award]!),
+                                    );
+                                  },
+                                ),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.card_giftcard_outlined),
+                        ),
                       ],
                     ),
                   ],

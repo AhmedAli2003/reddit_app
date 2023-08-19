@@ -33,7 +33,7 @@ class UserModel {
       uid: user.uid,
       isNotGuest: true,
       karma: 0,
-      awards: const [],
+      awards: const ['til', 'awesomeAns', 'helpful', 'thankyou', 'rocket', 'plusone', 'platinum', 'gold'],
     );
   }
 

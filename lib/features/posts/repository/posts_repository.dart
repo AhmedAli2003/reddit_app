@@ -22,6 +22,7 @@ class PostsRepository {
     required FirebaseFirestore firestore,
   }) : _firestore = firestore;
 
+  CollectionReference get _users => _firestore.collection(FirebaseConstants.usersCollection);
   CollectionReference get _posts => _firestore.collection(FirebaseConstants.postsCollection);
   CollectionReference get _comments => _firestore.collection(FirebaseConstants.commentsCollection);
 
@@ -128,6 +129,9 @@ class PostsRepository {
   FutureVoid addComment(Comment comment) async {
     try {
       await _comments.doc(comment.id).set(comment.toMap());
+      _posts.doc(comment.postId).update({
+        'commentCount': FieldValue.increment(1),
+      });
       return const Right(unit);
     } on FirebaseException catch (e) {
       throw e.message!;
@@ -151,5 +155,24 @@ class PostsRepository {
               )
               .toList(),
         );
+  }
+
+  FutureVoid awardPost(Post post, String award, String senderId) async {
+    try {
+      await _posts.doc(post.id).update({
+        'awards': FieldValue.arrayUnion([award]),
+      });
+      await _users.doc(post.userId).update({
+        'awards': FieldValue.arrayUnion([award]),
+      });
+      await _users.doc(senderId).update({
+        'awards': FieldValue.arrayRemove([award]),
+      });
+      return const Right(unit);
+    } on FirebaseException catch (e) {
+      throw e.message!;
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
   }
 }

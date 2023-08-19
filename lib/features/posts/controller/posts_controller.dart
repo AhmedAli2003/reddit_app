@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:reddit_app/app/keys/enums.dart';
 import 'package:reddit_app/app/models/comment.dart';
 import 'package:reddit_app/app/models/community_model.dart';
 import 'package:reddit_app/app/models/post_model.dart';
@@ -9,6 +10,7 @@ import 'package:reddit_app/app/shared/providers/storage_repository_provider.dart
 import 'package:reddit_app/features/auth/controllers/auth_controller.dart';
 import 'package:reddit_app/features/posts/repository/posts_repository.dart';
 import 'package:reddit_app/app/shared/utils.dart';
+import 'package:reddit_app/features/profile/controller/user_profile_controller.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:uuid/uuid.dart';
 
@@ -70,6 +72,7 @@ class PostsController extends StateNotifier<bool> {
       description: description,
     );
     final either = await _postsRepository.addPost(post: post);
+    _ref.read(userProfileControllerProvider.notifier).updateUserKarma(UserKarma.textPost);
     state = false;
     either.fold(
       (failure) => showSnackBar(context, failure.message),
@@ -105,6 +108,7 @@ class PostsController extends StateNotifier<bool> {
       link: link,
     );
     final either = await _postsRepository.addPost(post: post);
+    _ref.read(userProfileControllerProvider.notifier).updateUserKarma(UserKarma.linkPost);
     state = false;
     either.fold(
       (failure) => showSnackBar(context, failure.message),
@@ -148,6 +152,7 @@ class PostsController extends StateNotifier<bool> {
           link: imageUrl,
         );
         final either = await _postsRepository.addPost(post: post);
+        _ref.read(userProfileControllerProvider.notifier).updateUserKarma(UserKarma.imagePost);
         state = false;
         either.fold(
           (failure) => showSnackBar(context, failure.message),
@@ -173,6 +178,7 @@ class PostsController extends StateNotifier<bool> {
   }) async {
     state = true;
     final either = await _postsRepository.deletePost(postId);
+    _ref.read(userProfileControllerProvider.notifier).updateUserKarma(UserKarma.deletePost);
     state = false;
     either.fold(
       (failure) => showSnackBar(context, failure.message),
@@ -216,6 +222,7 @@ class PostsController extends StateNotifier<bool> {
     final userId = _ref.read(userProvider)!.uid;
     final comment = Comment.fromText(text: text, userId: userId, postId: postId);
     final either = await _postsRepository.addComment(comment);
+    _ref.read(userProfileControllerProvider.notifier).updateUserKarma(UserKarma.comment);
     either.fold(
       (failure) => showSnackBar(context, failure.message),
       (_) => null,
@@ -224,5 +231,25 @@ class PostsController extends StateNotifier<bool> {
 
   Stream<List<Comment>> fetchPostComments(String postId) {
     return _postsRepository.fetchPostComments(postId);
+  }
+
+  Future<void> awardPost({
+    required BuildContext context,
+    required Post post,
+    required String award,
+  }) async {
+    final user = _ref.read(userProvider)!;
+    final either = await _postsRepository.awardPost(post, award, user.uid);
+    either.fold(
+      (failure) => showSnackBar(context, failure.message),
+      (r) {
+        _ref.read(userProfileControllerProvider.notifier).updateUserKarma(UserKarma.awardPost);
+        _ref.read(userProvider.notifier).update((state) {
+          state?.awards.remove(award);
+          return state;
+        });
+        Routemaster.of(context).pop();
+      },
+    );
   }
 }
